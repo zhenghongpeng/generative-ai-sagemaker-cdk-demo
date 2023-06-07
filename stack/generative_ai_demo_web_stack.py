@@ -87,6 +87,25 @@ class GenerativeAiDemoWebStack(Stack):
         # Build Dockerfile from local folder and push to ECR
         image = ecs.ContainerImage.from_asset("web-app")
 
+        # Generate Custom Security Group for Fargate Service
+
+        security_group = ec2.SecurityGroup(
+            self, 'FargateSecurityGroup',
+            vpc=vpc,
+            description='Custom security group for ECS Fargate service',
+            allow_all_outbound=False  # Adjust this as per your requirements
+        )
+        # Add outbound rule for port 443
+        security_group.add_egress_rule(
+            ec2.Peer.any_ipv4(),
+            connection=ec2.Port.tcp(443)
+        )
+        # Add ingress rule for port 443
+        security_group.add_ingress_rule(
+            ec2.Peer.any_ipv4(),
+            connection=ec2.Port.tcp(443)
+        )
+
         # Create Fargate service
         fargate_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, "WebApplication",
@@ -97,6 +116,7 @@ class GenerativeAiDemoWebStack(Stack):
                 image=image, 
                 container_port=8501,
                 ),
+            security_groups=[security_group],
             #load_balancer_name="gen-ai-demo",
             memory_limit_mib=4096,      # Default is 512
             public_load_balancer=True)  # Default is True
@@ -114,7 +134,8 @@ class GenerativeAiDemoWebStack(Stack):
             actions = ["execute-api:Invoke","execute-api:ManageConnections"],
             resources = ["*"],
             )
-        )          
+        )
+          
 
 
         # Setup task auto-scaling
