@@ -138,16 +138,16 @@ class GenerativeAiDemoWebStack(Stack):
           
 
 
-        # Setup task auto-scaling
-        scaling = fargate_service.service.auto_scale_task_count(
-            max_capacity=10
-        )
-        scaling.scale_on_cpu_utilization(
-            "CpuScaling",
-            target_utilization_percent=50,
-            scale_in_cooldown=Duration.seconds(60),
-            scale_out_cooldown=Duration.seconds(60),
-        )
+        # # Setup task auto-scaling
+        # scaling = fargate_service.service.auto_scale_task_count(
+        #     max_capacity=10
+        # )
+        # scaling.scale_on_cpu_utilization(
+        #     "CpuScaling",
+        #     target_utilization_percent=50,
+        #     scale_in_cooldown=Duration.seconds(60),
+        #     scale_out_cooldown=Duration.seconds(60),
+        # )
 
         ssm.StringParameter(self, "txt2img_api_endpoint", parameter_name="txt2img_api_endpoint", string_value=txt2img_apigw_endpoint.url)
         ssm.StringParameter(self, "txt2nlu_api_endpoint", parameter_name="txt2nlu_api_endpoint", string_value=txt2nlu_apigw_endpoint.url)
